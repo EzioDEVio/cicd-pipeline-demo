@@ -33,15 +33,15 @@ jobs:
           name: trivy-report
           path: trivy-report.txt
 
-
       - name: Create GitHub issue for Trivy findings
         if: failure()
         uses: actions/github-script@v5
         with:
           script: |
             const fs = require('fs');
+            const path = 'trivy-report.txt';
             const maxBodyLength = 65000; // Set a limit slightly below the GitHub maximum
-            let report = fs.readFileSync('trivy-report.txt', {encoding: 'utf8'});
+            let report = fs.existsSync(path) ? fs.readFileSync(path, {encoding: 'utf8'}) : 'No report found.';
             // Truncate the report if it's too long
             if (report.length > maxBodyLength) {
               report = report.substring(0, maxBodyLength) + '\n\n... (report truncated due to length)';
@@ -54,7 +54,5 @@ jobs:
               title: title,
               body: body,
             });
-          github-token: ${{ secrets.REPO_TOKEN }}
-
-
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
