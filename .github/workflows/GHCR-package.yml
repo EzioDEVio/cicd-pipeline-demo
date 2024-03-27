@@ -19,12 +19,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Lowercase repository owner
+    - name: Set lowercase repository owner
       id: repo_owner
-      run: echo "REPO_OWNER=${{ github.repository_owner | toLower() }}" >> $GITHUB_ENV
+      run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
     - name: Build Docker image
-      run: docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
+      run: |
+        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}"
+        docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
 
     - name: Push Docker image to GitHub Container Registry
       run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
