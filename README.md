@@ -1,4 +1,4 @@
-[![SonarCloud Analysis](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/sonarcloud.yml/badge.svg)](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/sonarcloud.yml)
+[![SonarCloud Analysis](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/sonarcloud.yml/badge.svg)](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/sonarcloud.yml) [![Trivy Scan and Report](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/trivy-repo.yml/badge.svg)](https://github.com/EzioDEVio/DemoCICDpipeline/actions/workflows/trivy-repo.yml)
 
 # Project Documentation
 
