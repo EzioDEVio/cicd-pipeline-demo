@@ -33,20 +33,26 @@ jobs:
           path: trivy-report.txt
 
       - name: Create GitHub issue for Trivy findings
-        if: failure()  # This ensures the step only runs if the Trivy scan step fails
+        if: failure()
         uses: actions/github-script@v5
         with:
           script: |
             const fs = require('fs');
-            const report = fs.readFileSync('trivy-report.txt', {encoding: 'utf8'});
+            const maxBodyLength = 65000; // Set a limit slightly below the GitHub maximum
+            let report = fs.readFileSync('trivy-report.txt', {encoding: 'utf8'});
+            // Truncate the report if it's too long
+            if (report.length > maxBodyLength) {
+              report = report.substring(0, maxBodyLength) + '\n\n... (report truncated due to length)';
+            }
             const title = 'Trivy Vulnerability Report';
-            const body = 'Trivy has detected vulnerabilities:\n```\n' + report + '\n```';
+            const body = `Trivy has detected vulnerabilities:\n\`\`\`\n${report}\n\`\`\``;
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: title,
               body: body,
             });
-          github-token: ${{ secrets.MY_PERSONAL_TOKEN }} # Replace with your PAT name in secrets
+          github-token: ${{ secrets.REPO_TOKEN }}
+
 
 
