@@ -20,7 +20,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Docker image
-      run: docker build . -t ghcr.io/${{ github.repository_owner }}/your-image-name:${{ github.sha }}
+      run: docker build . -t ghcr.io/${{ github.repository_owner }}/ghcr-democicdapp:${{ github.sha }}
 
     - name: Push Docker image to GitHub Container Registry
       run: docker push ghcr.io/${{ github.repository_owner }}/ghcr-democicdapp:${{ github.sha }}
