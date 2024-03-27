@@ -17,11 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Assuming you're scanning an image from a registry. Replace 'your-image-name' and 'your-tag' accordingly.
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner and save the report
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ezio22/cicddemoapp:latest'
           format: 'table'
+          output: 'trivy-report.txt'
           exit-code: '1'
           ignore-unfixed: true
+
+      - name: Upload Trivy scan report as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-report
+          path: trivy-report.txt
