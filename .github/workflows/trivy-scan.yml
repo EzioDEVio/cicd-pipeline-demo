@@ -27,9 +27,25 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan report as an artifact
-        if: always()  # This ensures the artifact is uploaded even if the preceding step fails
         uses: actions/upload-artifact@v2
         with:
           name: trivy-report
           path: trivy-report.txt
+
+      # New step to create a GitHub issue with the Trivy report
+      - name: Create GitHub issue for Trivy findings
+        if: failure()  # This ensures the step only runs if the Trivy scan step fails
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('trivy-report.txt', {encoding: 'utf8'});
+            const title = 'Trivy Vulnerability Report';
+            const body = 'Trivy has detected vulnerabilities:\n```\n' + report + '\n```';
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+            });
 
