@@ -27,10 +27,12 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan report as an artifact
+        if: always()  # This will run this step regardless of the previous step's status
         uses: actions/upload-artifact@v2
         with:
           name: trivy-report
           path: trivy-report.txt
+
 
       - name: Create GitHub issue for Trivy findings
         if: failure()
