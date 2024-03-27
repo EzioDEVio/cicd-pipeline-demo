@@ -21,10 +21,10 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ezio22/cicddemoapp:latest'
-          format: 'table'
+          format: 'table'  # You can change this to 'json' if you prefer a machine-readable format
           output: 'trivy-report.txt'
-          exit-code: '1'
-          ignore-unfixed: true
+          exit-code: '1'  # This will cause the job to fail if vulnerabilities are found
+          ignore-unfixed: true  # Only consider vulnerabilities for which a fix is available
 
       - name: Upload Trivy scan report as an artifact
         uses: actions/upload-artifact@v2
