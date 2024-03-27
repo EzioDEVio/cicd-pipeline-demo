@@ -44,4 +44,4 @@ jobs:
             -Dsonar.exclusions=**/*.test.js,**/node_modules/**
             -Dsonar.tests=.
             -Dsonar.test.inclusions=**/*.test.js
-            # Add additional parameters as needed
+           
