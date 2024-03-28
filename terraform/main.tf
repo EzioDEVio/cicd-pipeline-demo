@@ -14,7 +14,7 @@ resource "random_string" "sg_suffix" {
   length  = 8
   special = false
   upper   = false
-  numeric = false # Updated to 'numeric' from 'number'
+  numeric = false  # Corrected attribute
 }
 
 resource "aws_security_group" "web_sg" {
@@ -61,7 +61,7 @@ resource "aws_instance" "web_instance" {
 
   connection {
     type        = "ssh"
-    user        = "ec2-user" # Assuming 'ec2-user' is the user in the AMI
+    user        = "ec2-user"
     private_key = file(var.private_key_path)
     host        = self.public_ip
   }
@@ -73,9 +73,8 @@ resource "aws_instance" "web_instance" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
-      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:9ae7c09f4fe9dbe94c169da2ee69f2f784416c2d",
-      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:9ae7c09f4fe9dbe94c169da2ee69f2f784416c2d"
+      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:latest", # Using the 'latest' tag for simplicity
+      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:latest"
     ]
   }
 }
-
