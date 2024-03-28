@@ -3,3 +3,8 @@
 
 terraform.tfvars
 *.pem
+# .gitignore content
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
