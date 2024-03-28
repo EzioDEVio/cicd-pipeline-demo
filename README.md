@@ -1,4 +1,4 @@
-[![Trivy Scan and Report](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-repo.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-repo.yml)
+[![Trivy Scan and Report](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-repo.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-repo.yml) [![Build and Push Docker image](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml)
 
 # Project Documentation
 
