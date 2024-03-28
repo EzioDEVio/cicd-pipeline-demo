@@ -1,0 +1,53 @@
+
+name: Terraform CI/CD
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  terraform-plan-apply:
+    name: Terraform Plan and Apply
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: terraform-plan-apply
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Checkov Scan
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: .
+
+    - name: Run Terrascan Scan
+      uses: accurics/terrascan-action@master
+      with:
+        iac_type: terraform
+        iac_version: v14
+        policy_type: aws
