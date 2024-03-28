@@ -1,0 +1,5 @@
+
+# .gitignore
+
+terraform.tfvars
+*.pem
