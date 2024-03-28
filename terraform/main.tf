@@ -14,7 +14,7 @@ resource "random_string" "sg_suffix" {
   length  = 8
   special = false
   upper   = false
-  numeric = false # Corrected attribute
+  numeric = false
 }
 
 resource "aws_security_group" "web_sg" {
@@ -62,7 +62,7 @@ resource "aws_instance" "web_instance" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file(var.private_key_path)
+    private_key = file(var.private_key_path)  # No need to update; it will reference the updated variable.
     host        = self.public_ip
   }
 
@@ -73,7 +73,7 @@ resource "aws_instance" "web_instance" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
-      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:latest", # Using the 'latest' tag for simplicity
+      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:latest",
       "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:latest"
     ]
   }
