@@ -66,15 +66,15 @@ resource "aws_instance" "web_instance" {
     host        = self.public_ip
   }
 
-provisioner "remote-exec" {
-  inline = [
-    "sudo yum update -y",
-    "sudo yum install -y docker",
-    "sudo systemctl start docker",
-    "sudo systemctl enable docker",
-    "sudo usermod -aG docker ec2-user",
-    "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:latest",
-    "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:latest"
-  ]
-}
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install -y docker",
+      "sudo systemctl start docker",
+      "sudo systemctl enable docker",
+      "sudo usermod -aG docker ec2-user",
+      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:latest",
+      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:latest"
+    ]
+  }
 }
