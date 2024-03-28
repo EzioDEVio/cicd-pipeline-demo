@@ -28,9 +28,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1 # Replace with your AWS region
 
-    # This is the new step showing how to set an environment variable
-    - name: Set an example environment variable
-      run: echo "EXAMPLE_VAR=example_value" >> $GITHUB_ENV
+    - name: Create Private Key File
+      run: |
+        echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/terraform/CICDKey.pem
 
     - name: Terraform Initialize
       run: terraform init
