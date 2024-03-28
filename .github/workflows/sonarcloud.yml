@@ -1,0 +1,47 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+  pull_request:
+    branches:
+      - main  # or your default branch
+
+jobs:
+  build:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Required to get a full history for SCM analysis
+
+      - name: Set up JDK 11  # SonarCloud scanner needs Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token for comments on PRs
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarCloud token
+        with:
+          projectBaseDir: ./
+          args: >
+            -Dsonar.projectKey=EzioDEVio_cicd-pipeline-demo
+            -Dsonar.organization=eziodevio
+            -Dsonar.sources=.
+            -Dsonar.exclusions=**/*.test.js,**/node_modules/**
+            -Dsonar.tests=.
+            -Dsonar.test.inclusions=**/*.test.js
+           
