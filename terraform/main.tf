@@ -11,7 +11,7 @@ data "aws_subnet" "existing_subnet" {
 }
 
 resource "aws_security_group" "web_sg" {
-  name        = "web-server-sg"
+  name        = "democicd-server-sg"
   description = "Allow web and SSH traffic"
   vpc_id      = data.aws_vpc.existing_vpc.id
 
@@ -37,7 +37,7 @@ resource "aws_security_group" "web_sg" {
   }
 
   tags = {
-    Name = "web-server-sg"
+    Name = "democicd-server-sg"
   }
 }
 
