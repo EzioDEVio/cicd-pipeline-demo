@@ -1,0 +1,59 @@
+name: 'Terraform Deploy to AWS with Security Scanning'
+
+on:
+  push:
+    branches:
+      - main  # Set to the branch that triggers the deployment.
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # Replace with your AWS region
+
+    - name: Terraform Initialize
+      run: terraform init
+
+    - name: Terraform Format Check
+      run: terraform fmt -check
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+    - name: Install Checkov
+      run: |
+        pip install checkov
+
+    - name: Checkov Security Scan
+      run: |
+        checkov -d .
+
+    - name: Install Terrascan
+      run: |
+        wget https://github.com/accurics/terrascan/releases/latest/download/terrascan_1.10.0_Linux_x86_64.tar.gz
+        tar -xvf terrascan_1.10.0_Linux_x86_64.tar.gz
+        mv terrascan /usr/local/bin
+
+    - name: Terrascan Security Scan
+      run: |
+        terrascan scan -d .
