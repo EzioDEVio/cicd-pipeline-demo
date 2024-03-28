@@ -14,7 +14,7 @@ resource "random_string" "sg_suffix" {
   length  = 8
   special = false
   upper   = false
-  numeric = false  # Corrected attribute
+  numeric = false # Corrected attribute
 }
 
 resource "aws_security_group" "web_sg" {
