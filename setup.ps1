@@ -20,6 +20,23 @@ docker run -p 8080:8080 ezio22/cicddemoapp  ### we run the image on port 8080 lo
  docker run -p 8080:8080 ghcr.io/eziodevio/ghcr-democicdapp:430e8b34dcb45d41239eab8d1ee1d0b14e3cc3fd ### run the image on port 8080 locally to test it.
 
 
+ #######################################################################################################################
+
+ To save a file using Vim, you can follow these steps:
+
+1. Press the Esc key to ensure you're in command mode.
+2. Type `:w` and press Enter. This command saves the file.
+3. If you want to save the file and exit Vim, you can type `:wq` and press Enter.
+
+To save a file using Nano, you can follow these steps:
+
+1. Press Ctrl + O. This command will prompt you to enter the filename to save.
+2. Enter the desired filename and press Enter.
+3. Press Ctrl + X to exit Nano.
+
+Remember to replace `<filename>` with the actual name of the file you want to save.
+
+
 
  ################################################### GIT OPERATION #######################################################
 
