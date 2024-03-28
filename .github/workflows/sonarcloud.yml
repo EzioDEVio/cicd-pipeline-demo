@@ -38,7 +38,7 @@ jobs:
         with:
           projectBaseDir: ./
           args: >
-            -Dsonar.projectKey=EzioDEVio_DemoCICDpipeline
+            -Dsonar.projectKey=EzioDEVio_cicd-pipeline-demo
             -Dsonar.organization=eziodevio
             -Dsonar.sources=.
             -Dsonar.exclusions=**/*.test.js,**/node_modules/**
