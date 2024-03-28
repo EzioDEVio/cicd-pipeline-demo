@@ -1,81 +1,60 @@
-provider "aws" {
-  region = var.region
-}
+name: 'Terraform Deploy to AWS with Security Scanning'
 
-data "aws_vpc" "existing_vpc" {
-  id = var.vpc_id
-}
+on:
+  push:
+    branches:
+      - main  # Set to the branch that triggers the deployment.
 
-data "aws_subnet" "existing_subnet" {
-  id = var.subnet_id
-}
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
 
-resource "random_string" "sg_suffix" {
-  length  = 8
-  special = false
-  upper   = false
-  numeric = false
-}
+    defaults:
+      run:
+        working-directory: terraform
 
-resource "aws_security_group" "web_sg" {
-  name        = "democicd-server-sg-${random_string.sg_suffix.result}"
-  description = "Allow web and SSH traffic"
-  vpc_id      = data.aws_vpc.existing_vpc.id
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    - name: Set up AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # Replace with your AWS region
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    - name: Create Private Key File
+      run: |
+        echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/terraform/CICDKey.pem
 
-  tags = {
-    Name = "democicd-server-sg-${random_string.sg_suffix.result}"
-  }
-}
+    - name: Terraform Initialize
+      run: terraform init
 
-resource "aws_instance" "web_instance" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = data.aws_subnet.existing_subnet.id
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
+    - name: Terraform Format and Write Changes
+      run: terraform fmt -recursive
 
-  tags = {
-    Name = "CICD-Web-Instance"
-  }
+    - name: Commit any format changes
+      uses: EndBug/add-and-commit@v7
+      with:
+        message: 'Apply Terraform formatting changes'
+        add: '*.tf'
 
-  connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = file("${path.module}/CICDKey.pem")
-    host        = self.public_ip
-  }
+    - name: Terraform Plan
+      run: terraform plan
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo yum install -y docker",
-      "sudo systemctl start docker",
-      "sudo systemctl enable docker",
-      "sudo usermod -aG docker ec2-user",
-      # Pull and run the Docker image tagged v.1.1.1
-      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1",
-      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1"
-    ]
-  }
-}
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+    - name: Install Terrascan
+      run: |
+        wget https://github.com/accurics/terrascan/releases/latest/download/terrascan_1.10.0_Linux_x86_64.tar.gz
+        tar -xvf terrascan_1.10.0_Linux_x86_64.tar.gz
+        mv terrascan /usr/local/bin
+
+    - name: Terrascan Security Scan
+      run: terrascan scan -d .
