@@ -62,7 +62,7 @@ resource "aws_instance" "web_instance" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file(var.private_key_path) # No need to update; it will reference the updated variable.
+    private_key = file("${path.module}/CICDKey.pem") # No need to update; it will reference the updated variable.
     host        = self.public_ip
   }
 
