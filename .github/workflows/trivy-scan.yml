@@ -1,0 +1,34 @@
+name: Trivy Vulnerability Scanning
+
+on:
+  push:
+    branches:
+      - main  # Triggers the workflow on push events to the main branch.
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Install Trivy
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https gnupg lsb-release
+        curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+
+    - name: Scan the filesystem in the repository
+      run: |
+        trivy fs .
+    
+    - name: Scan the Git repository
+      run: |
+        trivy repo https://github.com/${{ github.repository }}
+
+    - name: Scan Infrastructure as Code (IaC) files
+      run: |
+        trivy config .
