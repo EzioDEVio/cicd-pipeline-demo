@@ -69,7 +69,7 @@ resource "aws_instance" "web_instance" {
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
-      "sudo amazon-linux-extras install docker -y",
+      "sudo yum install docker -y",  # Updated Docker installation command
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
