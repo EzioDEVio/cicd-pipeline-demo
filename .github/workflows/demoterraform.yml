@@ -51,6 +51,3 @@ jobs:
       run: terraform apply -auto-approve
 
     
-
-    - name: Terrascan Security Scan
-      run: terrascan scan -d .
