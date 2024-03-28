@@ -1,4 +1,4 @@
- [![Build and Push Docker image](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml)  [![Build and Push to Docker Hub](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/dockerbuild.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/dockerbuild.yml)
+ [![Build and Push Docker image](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/GHCR-package.yml)  [![Build and Push to Docker Hub](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/dockerbuild.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/dockerbuild.yml) [![Trivy Vulnerability Scanning](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/trivy-scan.yml) 
 
 # Project Documentation
 
