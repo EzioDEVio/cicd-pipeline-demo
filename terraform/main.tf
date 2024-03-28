@@ -62,14 +62,14 @@ resource "aws_instance" "web_instance" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("${path.module}/CICDKey.pem") # No need to update; it will reference the updated variable.
+    private_key = file("${path.module}/CICDKey.pem")
     host        = self.public_ip
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y docker.io",
+      "sudo yum update -y",
+      "sudo amazon-linux-extras install docker -y",
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
