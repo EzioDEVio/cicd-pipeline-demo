@@ -19,15 +19,19 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GHCR_PAT }}
 
-
     - name: Set lowercase repository owner
-      id: repo_owner
       run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
-    - name: Build Docker image
+    - name: Build Docker image with specific tag
       run: |
-        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}"
-        docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
+        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1"
+        docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1
 
-    - name: Push Docker image to GitHub Container Registry
-      run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
+    - name: Push Docker image to GitHub Container Registry with tag v.1.1.1
+      run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1
+
+    # Optionally, you can also push the image with the commit SHA
+    - name: Tag and push Docker image with commit SHA
+      run: |
+        docker tag ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1 ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
+        docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
