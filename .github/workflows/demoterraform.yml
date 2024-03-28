@@ -28,6 +28,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1 # Replace with your AWS region
 
+    # This is the new step showing how to set an environment variable
+    - name: Set an example environment variable
+      run: echo "EXAMPLE_VAR=example_value" >> $GITHUB_ENV
+
     - name: Terraform Initialize
       run: terraform init
 
