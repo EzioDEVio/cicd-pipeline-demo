@@ -10,16 +10,14 @@ data "aws_subnet" "existing_subnet" {
   id = var.subnet_id
 }
 
-# Add a random string resource to create a unique suffix for the security group name
 resource "random_string" "sg_suffix" {
   length  = 8
   special = false
   upper   = false
-  number  = false
+  numeric = false # Updated to 'numeric' from 'number'
 }
 
 resource "aws_security_group" "web_sg" {
-  # Use the unique suffix from the random_string resource for the security group name
   name        = "democicd-server-sg-${random_string.sg_suffix.result}"
   description = "Allow web and SSH traffic"
   vpc_id      = data.aws_vpc.existing_vpc.id
@@ -45,7 +43,6 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Update the tag to use the new security group name
   tags = {
     Name = "democicd-server-sg-${random_string.sg_suffix.result}"
   }
@@ -64,7 +61,7 @@ resource "aws_instance" "web_instance" {
 
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ec2-user" # Assuming 'ec2-user' is the user in the AMI
     private_key = file(var.private_key_path)
     host        = self.public_ip
   }
@@ -75,11 +72,10 @@ resource "aws_instance" "web_instance" {
       "sudo apt-get install -y docker.io",
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
-      "sudo usermod -aG docker ${self.connection.user}", # Use variable for username
+      "sudo usermod -aG docker ec2-user",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:9ae7c09f4fe9dbe94c169da2ee69f2f784416c2d",
       "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:9ae7c09f4fe9dbe94c169da2ee69f2f784416c2d"
     ]
   }
 }
-
 
