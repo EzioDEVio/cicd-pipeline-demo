@@ -32,7 +32,7 @@ variable "public_key_path" {
 variable "ami_id" {
   description = "AMI ID for the EC2 instance"
   type        = string
-  default     = "ami-0f403e3180720dd7e"
+  default     = "ami-0c101f26f147fa7fd"
 }
 
 variable "instance_type" {
