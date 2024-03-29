@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 # using existng vpc
-data "aws_vpc" "existing_vpc" {   
+data "aws_vpc" "existing_vpc" {
   id = var.vpc_id
 }
 
@@ -66,29 +66,29 @@ resource "aws_instance" "web_instance" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
   subnet_id              = data.aws_subnet.existing_subnet.id
-  key_name               = var.key_name               ### I created a key pair in aws console and named it CICDdemoKey
+  key_name               = var.key_name ### I created a key pair in aws console and named it CICDdemoKey
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
   tags = {
     Name = "CICD-Web-Instance"
   }
-#here we refrence the private key from AWS secret manager 
+  #here we refrence the private key from AWS secret manager 
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string  
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
     host        = self.public_ip
   }
 
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
-      "sudo yum install -y docker",                     ## here we are deploying docker image(built and pushed to GHCR) 
+      "sudo yum install -y docker", ## here we are deploying docker image(built and pushed to GHCR) 
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1",
-      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1"             #the name of docker image we are deploying...
+      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1" #the name of docker image we are deploying...
     ]
   }
 }
