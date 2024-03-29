@@ -10,6 +10,15 @@ data "aws_subnet" "existing_subnet" {
   id = var.subnet_id
 }
 
+# Retrieve the private key from AWS Secrets Manager using the variable
+data "aws_secretsmanager_secret" "cicd_private_key" {
+  name = var.secret_name
+}
+
+data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
+  secret_id = data.aws_secretsmanager_secret.cicd_private_key.id
+}
+
 resource "random_string" "sg_suffix" {
   length  = 8
   special = false
@@ -62,7 +71,7 @@ resource "aws_instance" "web_instance" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("${path.module}/CICDKey.pem")
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
     host        = self.public_ip
   }
 
@@ -73,7 +82,6 @@ resource "aws_instance" "web_instance" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
-      # Pull and run the Docker image tagged v.1.1.1
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1",
       "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1"
     ]
