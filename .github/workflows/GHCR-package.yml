@@ -29,11 +29,11 @@ jobs:
 
     - name: Build Docker image with specific tag
       run: |
-        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1"
-        docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1
+        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1"
+        docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
 
-    - name: Push Docker image to GitHub Container Registry with tag v.1.1.1
-      run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1
+    - name: Push Docker image to GitHub Container Registry with tag v.1.2.1
+      run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
 
     # Optionally, you can also push the image with the commit SHA
     - name: Tag and push Docker image with commit SHA
