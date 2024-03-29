@@ -45,9 +45,7 @@ jobs:
         add: '*.tf'
 
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -lock=false
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve
-
-    
+      run: terraform apply -auto-approve -lock=false
