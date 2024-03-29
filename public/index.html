@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,6 +37,14 @@
             font-size: 0.8em;
             color: #777;
         }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -46,9 +53,20 @@
         <p>This page demonstrates a simple CI/CD pipeline that includes HTML content. The purpose is to show how changes in source control can automatically trigger workflows that test, build, and deploy a web application.</p>
         <p>CI/CD pipelines enhance the software development process by providing immediate feedback on code changes, streamlining testing and deployment, and fostering a culture of continuous improvement.</p>
         
+        <!-- Interactive button to display the current date and time -->
+        <button onclick="displayDateTime()">Show Current Date and Time</button>
+        <p id="dateTime"></p>
+
         <div class="footer">
             <p>&copy; 2023 DCSA Demo. All rights reserved.</p>
         </div>
     </div>
+
+    <script>
+        function displayDateTime() {
+            const now = new Date();
+            document.getElementById('dateTime').innerHTML = 'Current Date and Time: ' + now;
+        }
+    </script>
 </body>
 </html>
