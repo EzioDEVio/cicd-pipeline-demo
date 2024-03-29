@@ -27,16 +27,18 @@ jobs:
     - name: Set lowercase repository owner
       run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
-    - name: Build Docker image with specific tag
+    - name: Build Docker image with specific tag (v.1.2.1)
       run: |
-        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1"
+        echo "Building Image: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1"
         docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
 
     - name: Push Docker image to GitHub Container Registry with tag v.1.2.1
-      run: docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
+      run: |
+        echo "Pushing Image: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1"
+        docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
 
-    # Optionally, you can also push the image with the commit SHA
     - name: Tag and push Docker image with commit SHA
       run: |
-        docker tag ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.1.1 ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
+        echo "Tagging and Pushing SHA: ${{ github.sha }}"
+        docker tag ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1 ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
         docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ github.sha }}
