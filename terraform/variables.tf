@@ -50,9 +50,4 @@ variable "docker_password" {
   type        = string
 }
 
-variable "private_key_path" {
-  description = "The path to the public SSH key file"
-  type        = string
-  // Ensure this path is correct relative to where Terraform is executed
 
-}
