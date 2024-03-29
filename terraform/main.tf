@@ -87,8 +87,8 @@ resource "aws_instance" "web_instance" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
-      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1",
-      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.1.1" #the name of docker image we are deploying...
+      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:v.1.2.1",
+      "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:v.1.2.1" #the name of docker image we are deploying...
     ]
   }
 }
