@@ -23,9 +23,9 @@ variable "key_name" {
   default     = "CICDKey"
 }
 
-variable "public_key_path" {
-  description = "The path to the public SSH key file"
-  default     = "C:/Users/moham/OneDrive/Documents/CICDKey.pub"
+variable "secret_name" {
+  type        = string
+  description = "The name of the AWS Secrets Manager secret"
 }
 
 
