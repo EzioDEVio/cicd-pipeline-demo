@@ -5,6 +5,11 @@ on:
     branches:
       - main  # Set to the branch name you want to trigger the build.
 
+# Define the concurrency group
+concurrency: 
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docker:
     runs-on: ubuntu-latest
