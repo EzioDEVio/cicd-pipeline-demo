@@ -18,6 +18,10 @@ data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
   secret_id = data.aws_secretsmanager_secret.cicd_private_key.id
 }
 
+locals {
+  private_key = jsondecode(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)["privateKey"]
+}
+
 resource "random_string" "sg_suffix" {
   length  = 8
   special = false
@@ -70,7 +74,7 @@ resource "aws_instance" "web_instance" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
+    private_key = local.private_key
     host        = self.public_ip
   }
 }
@@ -83,7 +87,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
+    private_key = local.private_key
     host        = aws_instance.web_instance.public_ip
   }
 
