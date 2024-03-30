@@ -81,7 +81,6 @@ resource "aws_instance" "web_instance" {
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
       "sudo usermod -aG docker ec2-user",
-      // Use the Docker image tag variable
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
       "sudo docker run -d -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}"
     ]
