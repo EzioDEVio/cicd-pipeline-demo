@@ -71,9 +71,17 @@ jobs:
       - name: Terraform Format and Write Changes
         run: terraform fmt -recursive
 
+      - name: Retrieve SSH Key from AWS Secrets Manager
+        run: |
+          SSH_KEY=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_ID }} --query SecretString --output text | jq -r '.privateKey')
+          echo "$SSH_KEY" > ssh_key.pem
+          echo "PRIVATE_KEY_PATH=$(pwd)/ssh_key.pem" >> $GITHUB_ENV
+
+
       - name: Terraform Plan
         run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=v2.2.2" -auto-approve -lock=false
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.PRIVATE_KEY_PATH }}" -auto-approve -lock=false
+
 
