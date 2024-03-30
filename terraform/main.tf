@@ -81,14 +81,13 @@ resource "null_resource" "docker_image_update" {
   }
 
   connection {
-  type        = "ssh"
-  user        = "ec2-user"
-  private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
-  host        = aws_instance.web_instance.public_ip
-
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
+    host        = aws_instance.web_instance.public_ip
   }
 
- provisioner "remote-exec" {
+  provisioner "remote-exec" {
     inline = [
       "echo Pulling new image with tag: ${var.docker_image_tag}",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
