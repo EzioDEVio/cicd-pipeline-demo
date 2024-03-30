@@ -114,9 +114,12 @@ resource "aws_instance" "web_instance" {
 
   user_data = <<-EOF
               #!/bin/bash
+              # Update the installed packages and package cache
+              sudo dnf update -y
+
               # Install Docker
               sudo dnf install docker -y
-              
+
               # Start and enable Docker service
               sudo systemctl start docker
               sudo systemctl enable docker
@@ -130,6 +133,7 @@ resource "aws_instance" "web_instance" {
               sudo docker stop web_container || true
               sudo docker rm web_container || true
               sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+
               EOF
 
   tags = {
