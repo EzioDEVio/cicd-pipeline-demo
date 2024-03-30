@@ -44,6 +44,7 @@ jobs:
         working-directory: terraform
     env:
       DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      REPO_OWNER: ${{ env.REPO_OWNER }}
 
     steps:
       - name: Checkout repository
@@ -56,13 +57,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Retrieve SSH Key from AWS Secrets Manager
-        run: |
-          SSH_KEY=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_ID }} --query SecretString --output text | jq -r '.privateKey')
-          echo "$SSH_KEY" > ssh_key.pem
-          chmod 600 ssh_key.pem
-          echo "SSH_KEY_PATH=$(pwd)/ssh_key.pem" >> $GITHUB_ENV
-
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
 
@@ -73,9 +67,7 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -var="repo_owner=${{ github.repository_owner }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -var="repo_owner=${{ github.repository_owner }}" -auto-approve -lock=false
-
-
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -auto-approve -lock=false
