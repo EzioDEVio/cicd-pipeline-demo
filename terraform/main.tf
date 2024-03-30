@@ -114,21 +114,23 @@ resource "aws_instance" "web_instance" {
 
   user_data = <<-EOF
               #!/bin/bash
-              # Install Docker if not installed
-              if ! hash docker 2>/dev/null; then
-                sudo yum update -y
-                sudo amazon-linux-extras install docker -y
-                sudo service docker start
-                sudo usermod -a -G docker ec2-user
-              fi
+              # Update the installed packages and package cache
+              sudo yum update -y
+              # Install Docker
+              sudo amazon-linux-extras install docker -y
+              # Start the Docker service
+              sudo service docker start
+              # Add 'ec2-user' to the 'docker' group
+              sudo usermod -a -G docker ec2-user
 
-              # Pull and run Docker container
+              # Pull and run the Docker image
               echo "Pulling new image with tag: ${var.docker_image_tag}"
               sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
               sudo docker stop web_container || true
               sudo docker rm web_container || true
               sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-              EOF
+EOF
+
 
   tags = {
     Name = "CICD-Web-Instance"
