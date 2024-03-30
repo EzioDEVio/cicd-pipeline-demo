@@ -14,7 +14,7 @@ app.get('/date', (req, res) => {
   res.send(`Current Date and Time: ${new Date().toISOString()}`);
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 app.listen(port, () => {
     console.log(`Application is listening at http://localhost:${port}`);
 });
