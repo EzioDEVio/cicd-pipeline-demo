@@ -23,11 +23,10 @@ variable "key_name" {
   default     = "CICDKey"
 }
 
-variable "secret_name" {
+variable "my_secret_arn" {
+  description = "ARN of the secret"
   type        = string
-  description = "The name of the AWS Secrets Manager secret"
 }
-
 
 variable "ami_id" {
   description = "AMI ID for the EC2 instance"
