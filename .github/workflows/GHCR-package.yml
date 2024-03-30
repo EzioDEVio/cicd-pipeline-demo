@@ -8,7 +8,7 @@ on:
 # Define the concurrency group
 concurrency: 
   group: ghcr-build-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-push:
