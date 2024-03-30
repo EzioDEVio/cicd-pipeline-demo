@@ -23,8 +23,8 @@ variable "key_name" {
   default     = "CICDKey"
 }
 
-variable "my_secret_arn" {
-  description = "ARN of the secret"
+variable "secret_name" {
+  description = "name of the secret"
   type        = string
 }
 
