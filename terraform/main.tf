@@ -115,31 +115,33 @@ resource "aws_instance" "web_instance" {
   user_data = <<-EOF
                 #!/bin/bash
                 # Update the installed packages and package cache
-                   sudo yum update -y
+                sudo yum update -y
 
-                # Install Docker and its dependencies
-                  sudo amazon-linux-extras install docker -y
-                  sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+                # Install Docker
+                sudo amazon-linux-extras install docker -y
 
-                  # Start the Docker service
-                  sudo service docker start
+                # Start and enable Docker service
+                sudo systemctl start docker
+                sudo systemctl enable docker
 
-                  # Add 'ec2-user' to the 'docker' group
-                  sudo usermod -a -G docker ec2-user
+                # Ensure the Docker service starts on reboot
+                sudo chkconfig docker on
 
-                  # Pull and run the Docker image
-                  echo "Pulling new image with tag: ${var.docker_image_tag}"
-                  sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-                  sudo docker stop web_container || true
-                  sudo docker rm web_container || true
-                  sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-}
-EOF
+                # Add 'ec2-user' to the 'docker' group to execute Docker commands without using 'sudo'
+                sudo usermod -a -G docker ec2-user
 
+                # Docker post-installation steps recommend logging out and back in to re-evaluate group membership
+                # We can work around this by applying permissions and running a new shell instance as ec2-user
+
+                # Pull and run the Docker image as ec2-user
+                echo "Pulling new image with tag: ${var.docker_image_tag}"
+                sudo -u ec2-user -i docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+                sudo -u ec2-user -i docker stop web_container || true
+                sudo -u ec2-user -i docker rm web_container || true
+                sudo -u ec2-user -i docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+                EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
-
-
