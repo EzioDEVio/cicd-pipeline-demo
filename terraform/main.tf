@@ -81,7 +81,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = local.private_key
+    private_key = file("${path.module}/ssh_key.pem")
     host        = aws_instance.web_instance.public_ip
   }
 
