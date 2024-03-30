@@ -115,7 +115,7 @@ resource "aws_instance" "web_instance" {
   user_data = <<-EOF
               #!/bin/bash
               # Update the installed packages and package cache on Amazon Linux 2023
-              sudo yum update -y
+              sudo dnf update -y
 
               # Install Docker
               sudo amazon-linux-extras install docker -y
