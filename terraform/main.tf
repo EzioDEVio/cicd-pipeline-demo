@@ -22,6 +22,15 @@ locals {
   private_key = jsondecode(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)["privateKey"]
 }
 
+
+resource "random_string" "sg_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+  numeric = false
+}
+
+
 resource "aws_security_group" "web_sg" {
   name        = "democicd-server-sg-${random_string.sg_suffix.result}"
   description = "Allow web and SSH traffic"
@@ -46,6 +55,10 @@ resource "aws_security_group" "web_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "democicd-server-sg-${random_string.sg_suffix.result}"
   }
 }
 
