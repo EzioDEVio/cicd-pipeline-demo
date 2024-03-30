@@ -87,7 +87,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = local.private_key
+    private_key = aws_secretsmanager_secret_version.private_key.secret_string # Retrieve the secret value
     host        = aws_instance.web_instance.public_ip
   }
 
@@ -105,3 +105,10 @@ resource "null_resource" "docker_image_update" {
     aws_instance.web_instance
   ]
 }
+
+# Retrieve the secret value from AWS Secrets Manager
+data "aws_secretsmanager_secret_version" "private_key" {
+  secret_id     = "dev/demo/cicddemkey" # Replace with your actual secret ID
+  version_stage = "AWSCURRENT"
+}
+
