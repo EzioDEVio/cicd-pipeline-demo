@@ -74,13 +74,21 @@ resource "aws_instance" "web_instance" {
     host        = self.public_ip
   }
 
+  resource "null_resource" "docker_image_update" {
+  triggers = {
+    image_tag = var.docker_image_tag
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
+    host        = aws_instance.web_instance.public_ip
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo yum update -y",
-      "sudo yum install -y docker",
-      "sudo systemctl start docker",
-      "sudo systemctl enable docker",
-      "sudo usermod -aG docker ec2-user",
+      "echo Pulling new image with tag: ${var.docker_image_tag}",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
       "sudo docker stop web_container || true",
       "sudo docker rm web_container || true",
@@ -89,6 +97,7 @@ resource "aws_instance" "web_instance" {
   }
 
   depends_on = [
-    aws_security_group.web_sg
+    aws_instance.web_instance
   ]
 }
+
