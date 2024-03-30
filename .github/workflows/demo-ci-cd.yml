@@ -42,6 +42,8 @@ jobs:
     defaults:
       run:
         working-directory: terraform
+    env:
+      DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
 
     steps:
       - name: Checkout repository
@@ -64,7 +66,8 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ needs.build-and-push.outputs.image_tag }}" -var="repo_owner=${{ env.REPO_OWNER }}" -lock=false
+        run: |
+          terraform plan -var="docker_image_tag=${{ needs.build-and-push.outputs.image_tag }}" -var="repo_owner=${{ env.REPO_OWNER }}" -lock=false
 
       - name: Terraform Apply
         run: terraform apply -var="docker_image_tag=${{ needs.build-and-push.outputs.image_tag }}" -var="repo_owner=${{ env.REPO_OWNER }}" -auto-approve -lock=false
