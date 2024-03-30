@@ -118,9 +118,11 @@ resource "aws_instance" "web_instance" {
               sudo dnf update -y
 
               # Install Docker
-              sudo amazon-linux-extras install docker -y
+              sudo dnf install docker -y
               sudo systemctl start docker
               sudo systemctl enable docker
+
+              # Add 'ec2-user' to the 'docker' group
               sudo usermod -a -G docker ec2-user
 
               # Pull and run the Docker image, ensuring the repository name is in lowercase
@@ -130,9 +132,10 @@ resource "aws_instance" "web_instance" {
               sudo docker stop web_container || true
               sudo docker rm web_container || true
               sudo docker run -d --name web_container -p 80:80 ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
-              EOF
+EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
+
