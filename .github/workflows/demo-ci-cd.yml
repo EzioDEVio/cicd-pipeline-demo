@@ -73,7 +73,9 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -lock=false
+
 
       - name: Terraform Apply
         run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -auto-approve -lock=false
+
