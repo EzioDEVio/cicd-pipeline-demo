@@ -112,27 +112,14 @@ resource "aws_instance" "web_instance" {
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
-  resource "aws_instance" "web_instance" {
-  // other configuration...
-  
   user_data = <<-EOF
               #!/bin/bash
-              # Retrieve the SSH private key from AWS Secrets Manager
-              PRIVATE_KEY=$(aws secretsmanager get-secret-value --secret-id "${var.secret_name}" --query SecretString --output text | jq -r '.privateKey')
-
-              # Save the private key to a file and set appropriate permissions
-              echo "$PRIVATE_KEY" > /home/ec2-user/.ssh/id_rsa
-              chmod 600 /home/ec2-user/.ssh/id_rsa
-
-              # Pull, stop, remove, and run the new Docker image
               echo "Pulling new image with tag: ${var.docker_image_tag}"
-              docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-              docker stop web_container || true
-              docker rm web_container || true
-              docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker stop web_container || true
+              sudo docker rm web_container || true
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
               EOF
-}
-
 
   tags = {
     Name = "CICD-Web-Instance"
