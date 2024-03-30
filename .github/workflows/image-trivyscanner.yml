@@ -1,0 +1,32 @@
+name: Trivy Vulnerability Scan
+
+on:  
+  push:
+    branches:
+      - main  # Run this workflow for pushes to the main branch
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest  
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2  
+
+    - name: Set up Trivy
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ghcr.io/eziodevio/ghcr-democicdapp:v.1.2.1' # this is the image we built and pushed to GHCR
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+        output: 'trivy-results.txt'
+      # Trivy will scan the image and generate results
+
+    - name: Upload Trivy scan results
+      uses: actions/upload-artifact@v2
+      with:
+        name: trivy-results
+        path: trivy-results.txt
+      # This step uploads the scan results as an artifact
