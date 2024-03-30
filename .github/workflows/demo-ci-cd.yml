@@ -58,12 +58,9 @@ jobs:
       - name: Retrieve SSH Key from AWS Secrets Manager
         run: |
           SSH_KEY=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_ID }} --query SecretString --output text | jq -r '.privateKey')
-          echo "$SSH_KEY" > ssh_key.pem
+          echo "SSH_KEY=$SSH_KEY" >> $GITHUB_ENV
+          echo "SSH_KEY=${SSH_KEY}" > ssh_key.pem
           chmod 600 ssh_key.pem
-          echo "::set-env name=PRIVATE_KEY_PATH::$(pwd)/ssh_key.pem"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
@@ -78,4 +75,4 @@ jobs:
         run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.PRIVATE_KEY_PATH }}" -auto-approve -lock=false
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=ssh_key.pem" -auto-approve -lock=false
