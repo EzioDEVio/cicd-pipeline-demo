@@ -15,14 +15,13 @@ data "aws_secretsmanager_secret" "cicd_private_key" {
 }
 
 data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
-  secret_id = data.aws_secretsmanager_secret.cicd_private_key.id
+  secret_id     = data.aws_secretsmanager_secret.cicd_private_key.id
+  version_stage = "AWSCURRENT" # Ensure you are using the correct version stage
 }
-
 
 locals {
   private_key = jsondecode(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)["privateKey"]
 }
-
 
 resource "random_string" "sg_suffix" {
   length  = 8
@@ -79,14 +78,14 @@ resource "null_resource" "docker_image_update" {
     image_tag = var.docker_image_tag
   }
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = local.private_key
-      host        = aws_instance.web_instance.public_ip
-    }
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = local.private_key
+    host        = aws_instance.web_instance.public_ip
+  }
 
+  provisioner "remote-exec" {
     inline = [
       "echo Pulling new image with tag: ${var.docker_image_tag}",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
@@ -97,6 +96,6 @@ resource "null_resource" "docker_image_update" {
   }
 
   depends_on = [
-    "aws_instance.web_instance"
+    aws_instance.web_instance
   ]
 }
