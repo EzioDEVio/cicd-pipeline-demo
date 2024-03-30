@@ -112,6 +112,7 @@ resource "aws_instance" "web_instance" {
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
+  # The user_data should directly contain the script without nested resource blocks
   user_data = <<-EOF
               #!/bin/bash
               echo "Pulling new image with tag: ${var.docker_image_tag}"
@@ -125,3 +126,4 @@ resource "aws_instance" "web_instance" {
     Name = "CICD-Web-Instance"
   }
 }
+
