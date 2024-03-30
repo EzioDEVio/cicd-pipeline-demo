@@ -80,12 +80,11 @@ resource "null_resource" "docker_image_update" {
     image_tag = var.docker_image_tag
   }
 
-  # Ensuring that the connection block is correctly set up to use the SSH key
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    host        = aws_instance.web_instance.public_ip
     private_key = chomp(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)
+    host        = aws_instance.web_instance.public_ip
   }
 
   provisioner "remote-exec" {
@@ -102,3 +101,4 @@ resource "null_resource" "docker_image_update" {
     aws_instance.web_instance
   ]
 }
+
