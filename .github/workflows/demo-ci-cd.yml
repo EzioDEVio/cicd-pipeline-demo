@@ -21,16 +21,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: Convert repository owner to lowercase
+      - name: Set lowercase repository owner and set image tag
         id: set_output
-        run: echo "lowercase_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
+        run: |
+          REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG=$(echo "v2.2.2")  # Change this to dynamically generate tags if needed
+          echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "::set-output name=image_tag::$IMAGE_TAG"
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ env.lowercase_owner }}/ghcr-democicdapp:${{ github.sha }}
+        run: |
+          docker build . -t ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
+          docker push ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
 
   terraform:
     name: 'Terraform'
@@ -58,7 +60,8 @@ jobs:
 
       - name: Create Private Key File
         run: |
-          echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/terraform/CICDKey.pem
+          echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > CICDKey.pem
+          chmod 600 CICDKey.pem
 
       - name: Terraform Initialize
         run: terraform init
