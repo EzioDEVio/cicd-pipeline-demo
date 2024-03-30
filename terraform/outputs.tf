@@ -17,6 +17,7 @@ output "web_security_group_id" {
 }
 
 output "private_key_sample" {
-  value     = substr(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string, 0, 30)
+  value     = substr(local.private_key, 0, 64) # Output only the first 64 characters
   sensitive = true
 }
+
