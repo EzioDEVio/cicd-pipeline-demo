@@ -115,26 +115,22 @@ resource "aws_instance" "web_instance" {
   user_data = <<-EOF
               #!/bin/bash
               # Update the installed packages and package cache
-              sudo dnf update -y
+              sudo yum update -y
 
               # Install Docker
-              sudo dnf install docker -y
-
-              # Start and enable Docker service
-              sudo systemctl start docker
-              sudo systemctl enable docker
-
-              # Add 'ec2-user' to the 'docker' group
+              sudo amazon-linux-extras install docker -y
+              sudo service docker start
               sudo usermod -a -G docker ec2-user
 
               # Pull and run the Docker image
               echo "Pulling new image with tag: ${var.docker_image_tag}"
-              sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+              REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
+              sudo docker pull ghcr.io/${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
               sudo docker stop web_container || true
               sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
               EOF
+
 
   tags = {
     Name = "CICD-Web-Instance"
