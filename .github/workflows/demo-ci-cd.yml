@@ -24,7 +24,7 @@ jobs:
       - name: Set lowercase repository owner and set image tag
         id: set_output
         run: |
-          REPO_OWNER=${{ github.repository_owner }}
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           IMAGE_TAG="v2.2.2"
           echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
@@ -32,8 +32,8 @@ jobs:
           
       - name: Build and push Docker image
         run: |
-          docker build . -t ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
-          docker push ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
+          docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:$IMAGE_TAG
+          docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:$IMAGE_TAG
 
   terraform:
     name: 'Terraform'
@@ -44,7 +44,6 @@ jobs:
         working-directory: terraform
     env:
       DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
-      REPO_OWNER: ${{ github.repository_owner }}
 
     steps:
       - name: Checkout repository
@@ -74,8 +73,7 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -auto-approve -lock=false
-
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -auto-approve -lock=false
