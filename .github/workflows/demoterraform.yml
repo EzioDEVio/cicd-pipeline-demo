@@ -1,4 +1,4 @@
-name: 'Terraform Deploy to AWS with Security Scanning'
+name: 'Deploy demo-app using Terraform to AWS '
 
 on:
   push:
@@ -6,46 +6,74 @@ on:
       - main
 
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.set_output.outputs.image_tag }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Set lowercase repository owner and set image tag
+        id: set_output
+        run: |
+          REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')
+          IMAGE_TAG="v1.2.3"  # For example, setting this statically here, but should be dynamic based on your needs
+          echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "::set-output name=image_tag::$IMAGE_TAG"
+
+      - name: Build and push Docker image
+        run: |
+          docker build . -t ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
+          docker push ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
+
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: terraform
-
+    needs: build-and-push
+    env:
+      DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    - name: Set up AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-    - name: Create Private Key File
-      run: |
-        echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/terraform/CICDKey.pem
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.CICD_PRIVATE_KEY_BASE64 }}" | base64 --decode > ${{ github.workspace }}/terraform/CICDKey.pem
 
-    - name: Terraform Initialize
-      run: terraform init
+      - name: Terraform Initialize
+        run: terraform init
 
-    - name: Terraform Format and Write Changes
-      run: terraform fmt -recursive
+      - name: Terraform Format and Write Changes
+        run: terraform fmt -recursive
 
-    - name: Commit any format changes
-      uses: EndBug/add-and-commit@v7
-      with:
-        message: 'Apply Terraform formatting changes'
-        add: '*.tf'
+      - name: Commit any format changes
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Apply Terraform formatting changes'
+          add: '*.tf'
 
-    - name: Terraform Plan
-      run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
+      - name: Terraform Plan
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
-    - name: Terraform Apply
-      run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
+      - name: Terraform Apply
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
