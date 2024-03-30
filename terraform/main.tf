@@ -83,8 +83,8 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
     host        = aws_instance.web_instance.public_ip
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
   }
 
   provisioner "remote-exec" {
@@ -101,3 +101,4 @@ resource "null_resource" "docker_image_update" {
     aws_instance.web_instance
   ]
 }
+
