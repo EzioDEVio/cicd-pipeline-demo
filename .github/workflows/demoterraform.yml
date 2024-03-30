@@ -3,7 +3,10 @@ name: 'Terraform Deploy to AWS with Security Scanning'
 on:
   push:
     branches:
-      - main  # Set to the branch that triggers the deployment.
+      - main
+
+env:
+  DOCKER_IMAGE_TAG: "v1.2.3"  # Set this dynamically as needed, perhaps from a previous job or action output
 
 jobs:
   terraform:
@@ -26,7 +29,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1 # Replace with your AWS region
+        aws-region: us-east-1
 
     - name: Create Private Key File
       run: |
@@ -45,7 +48,7 @@ jobs:
         add: '*.tf'
 
     - name: Terraform Plan
-      run: terraform plan -lock=false
+      run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -lock=false
+      run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
