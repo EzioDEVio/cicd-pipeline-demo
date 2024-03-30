@@ -25,7 +25,7 @@ jobs:
         id: set_output
         run: |
           REPO_OWNER=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')
-          IMAGE_TAG="v1.2.3" # This tag can be dynamically set based on your requirements
+          IMAGE_TAG="v2.2.2" # This tag can be dynamically set based on your requirements
           echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "::set-output name=image_tag::$IMAGE_TAG"
