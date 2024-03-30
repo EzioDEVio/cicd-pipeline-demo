@@ -15,8 +15,7 @@ data "aws_secretsmanager_secret" "cicd_private_key" {
 }
 
 data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
-  secret_id     = data.aws_secretsmanager_secret.cicd_private_key.id
-  version_stage = "AWSCURRENT" # Ensure you are using the correct version stage
+  secret_id = data.aws_secretsmanager_secret.cicd_private_key.id
 }
 
 locals {
@@ -65,7 +64,7 @@ resource "aws_instance" "web_instance" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
   subnet_id              = data.aws_subnet.existing_subnet.id
-  key_name               = var.key_name
+  key_name               = var.key_name  # Ensure this key is in AWS EC2, even if not used directly, to avoid errors
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
   tags = {
@@ -81,7 +80,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("${path.module}/ssh_key.pem")
+    private_key = local.private_key  # Use the private key directly from the local value
     host        = aws_instance.web_instance.public_ip
   }
 
@@ -95,7 +94,5 @@ resource "null_resource" "docker_image_update" {
     ]
   }
 
-  depends_on = [
-    aws_instance.web_instance
-  ]
+  depends_on = [aws_instance.web_instance]
 }
