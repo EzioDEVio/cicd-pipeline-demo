@@ -78,5 +78,6 @@ jobs:
 
       # Now we pass the path to the SSH key file as a variable to Terraform.
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=${{ env.PRIVATE_KEY_PATH }}" -auto-approve -lock=false
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
+
 
