@@ -50,4 +50,9 @@ variable "docker_password" {
   type        = string
 }
 
+variable "docker_image_tag" {
+  description = "The tag of the Docker image to deploy"
+  type        = string
+  default     = "latest"  # Default can be set to "latest" or any stable version you prefer
+}
 
