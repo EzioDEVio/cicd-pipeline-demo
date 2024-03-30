@@ -60,12 +60,57 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
+resource "aws_iam_role" "ec2_secrets_manager_role" {
+  name = "EC2SecretsManagerRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid = ""
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "secrets_manager_policy" {
+  name        = "SecretsManagerAccess"
+  description = "IAM policy to access Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "secretsmanager:GetSecretValue"
+        Resource = data.aws_secretsmanager_secret.cicd_private_key.arn
+        Effect = "Allow"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "policy_attachment" {
+  role       = aws_iam_role.ec2_secrets_manager_role.name
+  policy_arn = aws_iam_policy.secrets_manager_policy.arn
+}
+
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "EC2InstanceProfileForSecretsManager"
+  role = aws_iam_role.ec2_secrets_manager_role.name
+}
+
 resource "aws_instance" "web_instance" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
   subnet_id              = data.aws_subnet.existing_subnet.id
-  key_name               = var.key_name  # Ensure this key is in AWS EC2, even if not used directly, to avoid errors
+  key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.web_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
   tags = {
     Name = "CICD-Web-Instance"
@@ -80,7 +125,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = local.private_key  # Use the private key directly from the local value
+    private_key = local.private_key
     host        = aws_instance.web_instance.public_ip
   }
 
