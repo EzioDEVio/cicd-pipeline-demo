@@ -112,34 +112,16 @@ resource "aws_instance" "web_instance" {
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
+  user_data = <<-EOF
+              #!/bin/bash
+              echo "Pulling new image with tag: ${docker_image_tag}"
+              sudo docker pull ghcr.io/${repo_owner}/ghcr-democicdapp:${docker_image_tag}
+              sudo docker stop web_container || true
+              sudo docker rm web_container || true
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/${repo_owner}/ghcr-democicdapp:${docker_image_tag}
+              EOF
+
   tags = {
     Name = "CICD-Web-Instance"
   }
-}
-
-resource "null_resource" "docker_image_update" {
-  triggers = {
-    image_tag = var.docker_image_tag
-  }
-
-connection {
-  type        = "ssh"
-  user        = "ec2-user"
-  private_key = file(var.private_key_path)
-  host        = aws_instance.web_instance.public_ip
-}
-
-
-
-  provisioner "remote-exec" {
-    inline = [
-      "echo Pulling new image with tag: ${var.docker_image_tag}",
-      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
-      "sudo docker stop web_container || true",
-      "sudo docker rm web_container || true",
-      "sudo docker run -d --name web_container -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}"
-    ]
-  }
-
-  depends_on = [aws_instance.web_instance]
 }
