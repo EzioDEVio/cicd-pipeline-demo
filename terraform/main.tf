@@ -87,7 +87,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("${path.module}/CICDKey.pem")
+    private_key = aws_secretsmanager_secret_version.private_key.secret_string
     host        = aws_instance.web_instance.public_ip
   }
 
