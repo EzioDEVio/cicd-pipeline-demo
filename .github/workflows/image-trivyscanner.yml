@@ -29,7 +29,7 @@ jobs:
 
     - name: Build Docker image with specific tag
       run: |
-        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1"
+        echo "Image name: ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1" # adding the image we built and pushed to GHCR
         docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:v.1.2.1
 
     - name: Push Docker image to GitHub Container Registry with tag v.1.2.1
