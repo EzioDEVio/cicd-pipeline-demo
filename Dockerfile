@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json (if available) to the working directory
 COPY package*.json ./
 
-# Install any necessary dependencies
+# Install any necessary dependencies...
 RUN npm install
 
 # Copy the rest of the application code to the working directory
@@ -22,3 +22,4 @@ ENV NODE_ENV=production
 
 # Run server.js when the container launches
 CMD ["node", "server.js"]
+
