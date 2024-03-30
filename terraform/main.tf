@@ -83,24 +83,21 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = chomp(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)
+    private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
     host        = aws_instance.web_instance.public_ip
   }
 
   provisioner "remote-exec" {
-  connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = chomp(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)
-    host        = aws_instance.web_instance.public_ip
+    inline = [
+      "echo Pulling new image with tag: ${var.docker_image_tag}",
+      "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
+      "sudo docker stop web_container || true",
+      "sudo docker rm web_container || true",
+      "sudo docker run -d --name web_container -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}"
+    ]
   }
 
-  inline = [
-    "echo Pulling new image with tag: ${var.docker_image_tag}",
-    "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
-    "sudo docker stop web_container || true",
-    "sudo docker rm web_container || true",
-    "sudo docker run -d --name web_container -p 80:80 ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}"
+  depends_on = [
+    aws_instance.web_instance
   ]
 }
-
