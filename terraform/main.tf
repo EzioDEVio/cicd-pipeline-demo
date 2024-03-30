@@ -113,22 +113,27 @@ resource "aws_instance" "web_instance" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
   user_data = <<-EOF
-              #!/bin/bash
-              # Update the installed packages and package cache
-              sudo yum update -y
-              # Install Docker
-              sudo amazon-linux-extras install docker -y
-              # Start the Docker service
-              sudo service docker start
-              # Add 'ec2-user' to the 'docker' group
-              sudo usermod -a -G docker ec2-user
+                #!/bin/bash
+                # Update the installed packages and package cache
+                   sudo yum update -y
 
-              # Pull and run the Docker image
-              echo "Pulling new image with tag: ${var.docker_image_tag}"
-              sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
-              sudo docker stop web_container || true
-              sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+                # Install Docker and its dependencies
+                  sudo amazon-linux-extras install docker -y
+                  sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+                  # Start the Docker service
+                  sudo service docker start
+
+                  # Add 'ec2-user' to the 'docker' group
+                  sudo usermod -a -G docker ec2-user
+
+                  # Pull and run the Docker image
+                  echo "Pulling new image with tag: ${var.docker_image_tag}"
+                  sudo docker pull ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+                  sudo docker stop web_container || true
+                  sudo docker rm web_container || true
+                  sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/ghcr-democicdapp:${var.docker_image_tag}
+}
 EOF
 
 
