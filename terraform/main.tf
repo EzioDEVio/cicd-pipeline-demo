@@ -122,12 +122,13 @@ resource "null_resource" "docker_image_update" {
     image_tag = var.docker_image_tag
   }
 
- connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = file("${var.private_key_path}")
-    host        = aws_instance.web_instance.public_ip
-  }
+connection {
+  type        = "ssh"
+  user        = "ec2-user"
+  private_key = local.private_key
+  host        = aws_instance.web_instance.public_ip
+}
+
 
   provisioner "remote-exec" {
     inline = [
