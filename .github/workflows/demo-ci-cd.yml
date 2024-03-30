@@ -9,10 +9,9 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.set_output.outputs.image_tag }}
+      image_tag: ${{ steps.set_timestamp.outputs.image_tag }}
     steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v1
@@ -21,19 +20,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      - name: Set lowercase repository owner and set image tag
-        id: set_output
+      - name: Generate timestamp-based image tag
+        id: set_timestamp
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_TAG="v2.2.2"
+          DATE=$(date +'%Y%m%d%H%M%S')
+          IMAGE_TAG=v${DATE}
           echo "REPO_OWNER=${REPO_OWNER}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "::set-output name=image_tag::${IMAGE_TAG}"
-          
-      - name: Build and push Docker image
+
+      - name: Build and push Docker image with timestamp tag
         run: |
-          docker build . -t ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ env.IMAGE_TAG }}
-          docker push ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ env.IMAGE_TAG }}
+          docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+          docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
 
   terraform:
     name: 'Terraform'
@@ -44,10 +44,12 @@ jobs:
         working-directory: terraform
     env:
       DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: 'us-east-1'
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -62,12 +64,8 @@ jobs:
       - name: Terraform Initialize
         run: terraform init
 
-      - name: Terraform Format and Write Changes
-        run: terraform fmt -recursive
-
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ github.repository_owner }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${DOCKER_IMAGE_TAG}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ github.repository_owner }}" -auto-approve -lock=false
-
+        run: terraform apply -var="docker_image_tag=${DOCKER_IMAGE_TAG}" -auto-approve -lock=false
