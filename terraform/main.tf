@@ -73,8 +73,9 @@ resource "aws_instance" "web_instance" {
     private_key = data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string
     host        = self.public_ip
   }
+}
 
-  resource "null_resource" "docker_image_update" {
+resource "null_resource" "docker_image_update" {
   triggers = {
     image_tag = var.docker_image_tag
   }
@@ -100,4 +101,3 @@ resource "aws_instance" "web_instance" {
     aws_instance.web_instance
   ]
 }
-
