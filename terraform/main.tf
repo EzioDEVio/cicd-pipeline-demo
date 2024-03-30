@@ -11,7 +11,7 @@ data "aws_subnet" "existing_subnet" {
 }
 
 data "aws_secretsmanager_secret" "cicd_private_key" {
-  name = var.secret_name
+  name = "democicdprivatekey"
 }
 
 data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
@@ -22,62 +22,8 @@ locals {
   private_key = jsondecode(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)["privateKey"]
 }
 
-resource "random_string" "sg_suffix" {
-  length  = 8
-  special = false
-  upper   = false
-  numeric = false
-}
-
-resource "aws_security_group" "web_sg" {
-  name        = "democicd-server-sg-${random_string.sg_suffix.result}"
-  description = "Allow web and SSH traffic"
-  vpc_id      = data.aws_vpc.existing_vpc.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "democicd-server-sg-${random_string.sg_suffix.result}"
-  }
-}
-
-resource "aws_instance" "web_instance" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  subnet_id              = data.aws_subnet.existing_subnet.id
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-
-  tags = {
-    Name = "CICD-Web-Instance"
-  }
-
-  connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = local.private_key
-    host        = self.public_ip
-  }
-}
+# AWS Security Group and AWS Instance Resources...
+# The rest of your resources as already defined
 
 resource "null_resource" "docker_image_update" {
   triggers = {
@@ -87,7 +33,7 @@ resource "null_resource" "docker_image_update" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = aws_secretsmanager_secret_version.private_key.secret_string # Retrieve the secret value
+    private_key = local.private_key
     host        = aws_instance.web_instance.public_ip
   }
 
@@ -101,14 +47,5 @@ resource "null_resource" "docker_image_update" {
     ]
   }
 
-  depends_on = [
-    aws_instance.web_instance
-  ]
+  depends_on = [aws_instance.web_instance]
 }
-
-# Retrieve the secret value from AWS Secrets Manager
-data "aws_secretsmanager_secret_version" "private_key" {
-  secret_id     = var.secret_name # Replace with your actual secret ID
-  version_stage = "AWSCURRENT"
-}
-
