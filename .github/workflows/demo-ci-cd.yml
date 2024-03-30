@@ -25,7 +25,7 @@ jobs:
         id: set_output
         run: |
           REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
-          IMAGE_TAG=$(echo "v2.2.2")  # Change this to dynamically generate tags if needed
+          IMAGE_TAG="v2.2.2"  # Adjust this for dynamic tagging as needed.
           echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "::set-output name=image_tag::$IMAGE_TAG"
@@ -58,6 +58,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: Retrieve SSH Key from AWS Secrets Manager
+        id: get_ssh_key
+        run: |
+          SSH_KEY=$(aws secretsmanager get-secret-value --secret-id cicdprivatekey --query SecretString --output text | jq -r '.privateKey')
+          echo "$SSH_KEY" > CICDKey.pem
+          chmod 600 CICDKey.pem
+          echo "::set-output name=SSH_KEY::$SSH_KEY"
 
       - name: Terraform Initialize
         run: terraform init
