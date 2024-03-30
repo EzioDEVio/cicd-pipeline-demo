@@ -11,12 +11,13 @@ data "aws_subnet" "existing_subnet" {
 }
 
 data "aws_secretsmanager_secret" "cicd_private_key" {
-  name = "democicdprivatekey"
+  name = var.secret_name
 }
 
 data "aws_secretsmanager_secret_version" "cicd_private_key_version" {
   secret_id = data.aws_secretsmanager_secret.cicd_private_key.id
 }
+
 
 locals {
   private_key = jsondecode(data.aws_secretsmanager_secret_version.cicd_private_key_version.secret_string)["privateKey"]
@@ -29,7 +30,6 @@ resource "random_string" "sg_suffix" {
   upper   = false
   numeric = false
 }
-
 
 resource "aws_security_group" "web_sg" {
   name        = "democicd-server-sg-${random_string.sg_suffix.result}"
@@ -68,7 +68,7 @@ resource "aws_instance" "web_instance" {
   subnet_id              = data.aws_subnet.existing_subnet.id
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.web_sg.id]
-  
+
   tags = {
     Name = "CICD-Web-Instance"
   }
@@ -79,14 +79,14 @@ resource "null_resource" "docker_image_update" {
     image_tag = var.docker_image_tag
   }
 
-  connection {
-    type        = "ssh"
-    user        = "ec2-user"
-    private_key = local.private_key
-    host        = aws_instance.web_instance.public_ip
-  }
-
   provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = local.private_key
+      host        = aws_instance.web_instance.public_ip
+    }
+
     inline = [
       "echo Pulling new image with tag: ${var.docker_image_tag}",
       "sudo docker pull ghcr.io/eziodevio/ghcr-democicdapp:${var.docker_image_tag}",
@@ -97,6 +97,6 @@ resource "null_resource" "docker_image_update" {
   }
 
   depends_on = [
-    aws_instance.web_instance
+    "aws_instance.web_instance"
   ]
 }
