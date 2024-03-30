@@ -24,11 +24,12 @@ jobs:
       - name: Set lowercase repository owner and set image tag
         id: set_output
         run: |
-          REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')
+          REPO_OWNER=${{ github.repository_owner }}
           IMAGE_TAG="v2.2.2"
           echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           echo "::set-output name=image_tag::$IMAGE_TAG"
+          
       - name: Build and push Docker image
         run: |
           docker build . -t ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG
@@ -43,6 +44,7 @@ jobs:
         working-directory: terraform
     env:
       DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      REPO_OWNER: ${{ github.repository_owner }}
 
     steps:
       - name: Checkout repository
@@ -55,14 +57,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-            # This step retrieves the SSH key and stores it in a file. 
-      # It then sets an environment variable to the path of that file.
-      - name: Retrieve SSH Key from AWS Secrets Manager and Set Key Path
+      - name: Retrieve SSH Key from AWS Secrets Manager
         run: |
           SSH_KEY=$(aws secretsmanager get-secret-value --secret-id ${{ secrets.SECRET_ID }} --query SecretString --output text | jq -r '.privateKey')
           echo "$SSH_KEY" > ssh_key.pem
           chmod 600 ssh_key.pem
-          echo "PRIVATE_KEY_PATH=$(pwd)/ssh_key.pem" >> $GITHUB_ENV
+          echo "SSH_KEY_PATH=$(pwd)/ssh_key.pem" >> $GITHUB_ENV
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
@@ -74,10 +74,8 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -lock=false
 
-      # Now we pass the path to the SSH key file as a variable to Terraform.
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
-
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ env.REPO_OWNER }}" -var="private_key_path=${{ env.SSH_KEY_PATH }}" -auto-approve -lock=false
 
