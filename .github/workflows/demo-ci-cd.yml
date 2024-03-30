@@ -75,4 +75,5 @@ jobs:
         run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="private_key_path=ssh_key.pem" -auto-approve -lock=false
+        run: terraform apply -var="docker_image_tag=v2.2.2" -auto-approve -lock=false
+
