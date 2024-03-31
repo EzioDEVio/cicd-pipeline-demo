@@ -121,21 +121,21 @@ sudo systemctl enable docker
 sudo usermod -aG docker ec2-user
 
 # Pull and run the Docker image
-# Ensure the image tag matches the one from GitHub Actions workflow
-IMAGE_TAG="${var.docker_image_tag}"
+# The variables below are injected directly from Terraform
 REPO_OWNER=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
-FULL_IMAGE_NAME=${IMAGE_TAG}
+IMAGE_TAG="${var.docker_image_tag}"
 
-echo "Pulling image: ${FULL_IMAGE_NAME}"
-sudo docker pull ${FULL_IMAGE_NAME} || exit 1
+echo "Pulling image: $IMAGE_TAG"
+sudo docker pull $IMAGE_TAG || exit 1
 
 echo "Running container..."
-sudo docker run -d --name web_container -p 80:80 ${FULL_IMAGE_NAME} || exit 1
+sudo docker run -d --name web_container -p 80:80 $IMAGE_TAG || exit 1
 EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
+
 
 
