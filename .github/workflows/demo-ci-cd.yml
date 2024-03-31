@@ -1,4 +1,4 @@
-name: 'Build, Push, and Deploy cicddemo-app using Terraform to AWS'
+name: 'Deploy demo-app using Terraform to AWS'
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-scan-push:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.set_timestamp.outputs.image_tag }}
@@ -30,20 +30,41 @@ jobs:
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "::set-output name=image_tag::${IMAGE_TAG}"
 
-      - name: Build and push Docker image with timestamp tag
+      - name: Build Docker image with timestamp tag
         run: |
           docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+          echo "Image built: ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}"
+
+      - name: Scan the Docker image with Trivy
+        uses: aquasecurity/trivy-action@main
+        with:
+          image-ref: "ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ env.IMAGE_TAG }}"
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          output: 'trivy-report.txt'
+        continue-on-error: true
+
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-results
+          path: trivy-report.txt
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          echo "Pushing Image: ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}"
           docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
 
-  terraform:
+  terraform-deploy:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: build-scan-push
     defaults:
       run:
         working-directory: terraform
     env:
-      DOCKER_IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      DOCKER_IMAGE_TAG: ${{ needs.build-scan-push.outputs.image_tag }}
 
     steps:
       - uses: actions/checkout@v2
@@ -65,7 +86,7 @@ jobs:
         run: terraform fmt -recursive
 
       - name: Terraform Plan
-        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ github.repository_owner }}" -lock=false
+        run: terraform plan -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -lock=false
 
       - name: Terraform Apply
-        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -var="repo_owner=${{ github.repository_owner }}" -auto-approve -lock=false
+        run: terraform apply -var="docker_image_tag=${{ env.DOCKER_IMAGE_TAG }}" -auto-approve -lock=false
