@@ -113,23 +113,29 @@ resource "aws_instance" "web_instance" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
   user_data = <<-EOF
-    #!/bin/bash
-    # Install Docker and pull/run the image
-    sudo dnf install -y docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -aG docker ec2-user
+#!/bin/bash
+# Install Docker and pull/run the image
+sudo dnf install -y docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
 
-    # Use directly provided repo owner and docker image tag
-    echo "Pulling image: ghcr.io/${var.repo_owner}/cicd-demoapp:${var.docker_image_tag}"
-    sudo docker pull ghcr.io/${var.repo_owner}/cicd-demoapp:${var.docker_image_tag} || exit 1
+# Pull and run the Docker image
+# Ensure the image tag matches the one from GitHub Actions workflow
+IMAGE_TAG="${var.docker_image_tag}"
+REPO_OWNER=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
+FULL_IMAGE_NAME=${IMAGE_TAG}
 
-    echo "Running container..."
-    sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/cicd-demoapp:${var.docker_image_tag} || exit 1
+echo "Pulling image: ${FULL_IMAGE_NAME}"
+sudo docker pull ${FULL_IMAGE_NAME} || exit 1
+
+echo "Running container..."
+sudo docker run -d --name web_container -p 80:80 ${FULL_IMAGE_NAME} || exit 1
 EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
+
 
