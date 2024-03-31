@@ -1,9 +1,9 @@
 name: 'Build, package, and Trivy scanner Deploy demo-app using Terraform to AWS'
 
-#on:
- #push:
-    #branches:
-      #- main
+on:
+ push:
+    branches:
+      - main
 
 jobs:
   build-and-push:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry..
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
