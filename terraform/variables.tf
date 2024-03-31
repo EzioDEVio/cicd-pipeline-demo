@@ -54,8 +54,10 @@ variable "docker_image_tag" {
   type        = string
 
 }
-
-
+variable "repo_owner" {
+  description = "Repository owner for image registry"
+  type        = string
+}
 
 
 
