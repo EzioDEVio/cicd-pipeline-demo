@@ -114,7 +114,7 @@ resource "aws_instance" "web_instance" {
 
   user_data = <<-EOF
               #!/bin/bash
-              # Update the installed packages and package cache on Amazon Linux 2023
+              # Update the installed packages and package cache on Amazon Linux
               sudo dnf update -y
 
               # Install Docker
@@ -126,15 +126,14 @@ resource "aws_instance" "web_instance" {
               sudo usermod -a -G docker ec2-user
 
               # Pull and run the Docker image
-              echo "Pulling new image with tag: ${docker_image_tag}"
-              sudo docker pull ghcr.io/${repo_owner}/cicd-demoapp:${docker_image_tag}
+              echo "Pulling new image with tag: ${var.docker_image_tag}"
+              sudo docker pull ghcr.io/${var.repo_owner}/cicd-demoapp:${var.docker_image_tag}
               sudo docker stop web_container || true
               sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ghcr.io/${repo_owner}/cicd-demoapp:${docker_image_tag}
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/${var.repo_owner}/cicd-demoapp:${var.docker_image_tag}
 EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
-
