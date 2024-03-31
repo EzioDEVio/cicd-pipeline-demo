@@ -1,12 +1,12 @@
 name: SonarCloud Analysis
 
-#on:
-  #push:
-    #branches:
-      #- main  # or your default branch
-  #pull_request:
+on:
+  push:
     branches:
-      #- main  # or your default branch
+      - main  # or your default branch
+  pull_request:
+    branches:
+      - main  # or your default branch
 
 jobs:
   build:
