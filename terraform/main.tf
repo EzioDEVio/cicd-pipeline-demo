@@ -125,13 +125,12 @@ resource "aws_instance" "web_instance" {
               # Add 'ec2-user' to the 'docker' group
               sudo usermod -a -G docker ec2-user
 
-              # Pull and run the Docker image, ensuring the repository name is in lowercase
-              REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
-              echo "Pulling new image with tag: ${var.docker_image_tag}"
-              sudo docker pull ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
+              # Pull and run the Docker image
+              echo "Pulling new image with tag: ${docker_image_tag}"
+              sudo docker pull ghcr.io/${repo_owner}/cicd-demoapp:${docker_image_tag}
               sudo docker stop web_container || true
               sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/${repo_owner}/cicd-demoapp:${docker_image_tag}
 EOF
 
   tags = {
