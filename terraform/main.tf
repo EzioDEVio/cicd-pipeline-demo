@@ -140,4 +140,8 @@ EOF
   tags = {
     Name = "CICD-Web-Instance"
   }
+
+ #lifecycle {
+    #create_before_destroy = true
+  #}
 }
