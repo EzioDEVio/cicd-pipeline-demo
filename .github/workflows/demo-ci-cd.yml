@@ -2,7 +2,7 @@ name: 'Build, package, and Trivy scanner Deploy demo-app using Terraform to AWS'
 
 on:
   push:
-   branches:
+    branches:
       - main
 
 jobs:
@@ -25,20 +25,20 @@ jobs:
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           DATE=$(date +'%Y%m%d%H%M%S')
-          IMAGE_TAG=v${DATE}
+          IMAGE_TAG=ghcr.io/${REPO_OWNER}/ghcr-democicdapp:v${DATE}
           echo "REPO_OWNER=${REPO_OWNER}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "::set-output name=image_tag::${IMAGE_TAG}"
 
       - name: Build and push Docker image with timestamp tag
         run: |
-          docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
-          docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+          docker build . -t ${{ steps.set_timestamp.outputs.image_tag }}
+          docker push ${{ steps.set_timestamp.outputs.image_tag }}
 
       - name: Scan the Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "ghcr.io/${{ env.IMAGE_TAG }}"
+          image-ref: ${{ steps.set_timestamp.outputs.image_tag }}
           format: 'table'
           output: 'trivy-report.txt'
           severity: 'CRITICAL,HIGH'
@@ -49,7 +49,6 @@ jobs:
         with:
           name: Trivy-scan-report
           path: trivy-report.txt
-
 
   terraform:
     name: 'Terraform'
