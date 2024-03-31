@@ -24,7 +24,7 @@ jobs:
         id: set_timestamp
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          DATE=$(date +'%Y%m%d%H%M%S')
+          DATE=$(date +'%Y%m%d%H%M%S')  #timesatmp tage
           IMAGE_TAG=${REPO_OWNER}/my-app:v${DATE}
           echo "REPO_OWNER=${REPO_OWNER}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
