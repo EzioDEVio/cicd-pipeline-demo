@@ -25,30 +25,30 @@ jobs:
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           DATE=$(date +'%Y%m%d%H%M%S')
-          IMAGE_TAG=${REPO_OWNER}/cicd-demo:v${DATE}
+          IMAGE_TAG=${REPO_OWNER}/my-app:v${DATE}
           echo "REPO_OWNER=${REPO_OWNER}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "::set-output name=image_tag::${IMAGE_TAG}"
 
-      - name: Build and push Docker image with timestamp tag
+      - name: Build Docker image with timestamp tag
         run: |
           docker build . -t ghcr.io/${IMAGE_TAG}
           docker push ghcr.io/${IMAGE_TAG}
 
-      - name: Run Trivy vulnerability scanner
+      - name: Scan the Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: "ghcr.io/${{ env.IMAGE_TAG }}"
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL'
+          format: 'table'
+          output: 'trivy-report.txt'
+          severity: 'CRITICAL,HIGH'
         continue-on-error: true
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v1
+      - name: Upload Trivy scan report
+        uses: actions/upload-artifact@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          name: Trivy-scan-report
+          path: trivy-report.txt
 
   terraform-deploy:
     name: 'Terraform'
