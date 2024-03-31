@@ -113,29 +113,29 @@ resource "aws_instance" "web_instance" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
   user_data = <<-EOF
-#!/bin/bash
-# Install Docker and pull/run the image
-sudo dnf install -y docker
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo usermod -aG docker ec2-user
+              #!/bin/bash
+              # Update the installed packages and package cache on Amazon Linux 2023
+              sudo dnf update -y
 
-# Pull and run the Docker image
-# The variables below are injected directly from Terraform
-REPO_OWNER=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
-IMAGE_TAG="${var.docker_image_tag}"
+              # Install Docker
+              sudo dnf install docker -y
+              sudo systemctl start docker
+              sudo systemctl enable docker
 
-echo "Pulling image: $IMAGE_TAG"
-sudo docker pull $IMAGE_TAG || exit 1
+              # Add 'ec2-user' to the 'docker' group
+              sudo usermod -a -G docker ec2-user
 
-echo "Running container..."
-sudo docker run -d --name web_container -p 80:80 $IMAGE_TAG || exit 1
+              # Pull and run the Docker image, ensuring the repository name is in lowercase
+              REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
+              echo "Pulling new image with tag: ${var.docker_image_tag}"
+              sudo docker pull ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker stop web_container || true
+              sudo docker rm web_container || true
+              sudo docker run -d --name web_container -p 80:80 ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
 EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
-
-
 
