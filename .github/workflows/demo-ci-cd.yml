@@ -1,4 +1,4 @@
-name: 'Build, package, and Deploy demo-app using Terraform to AWS'
+name: 'Build, package, and Trivy scanner Deploy demo-app using Terraform to AWS'
 
 on:
   push:
@@ -34,6 +34,22 @@ jobs:
         run: |
           docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
           docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+
+      - name: Scan the Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "ghcr.io/${{ env.IMAGE_TAG }}"
+          format: 'table'
+          output: 'trivy-report.txt'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+
+      - name: Upload Trivy scan report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Trivy-scan-report
+          path: trivy-report.txt
+
 
   terraform:
     name: 'Terraform'
