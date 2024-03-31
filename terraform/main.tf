@@ -128,14 +128,13 @@ resource "aws_instance" "web_instance" {
               # Pull and run the Docker image, ensuring the repository name is in lowercase
               REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
               echo "Pulling new image with tag: ${var.docker_image_tag}"
-              sudo docker pull ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker pull ${var.docker_image_tag}
               sudo docker stop web_container || true
               sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ghcr.io/$${REPO_NAME}/ghcr-democicdapp:${var.docker_image_tag}
+              sudo docker run -d --name web_container -p 80:80 ${var.docker_image_tag}
 EOF
 
   tags = {
     Name = "CICD-Web-Instance"
   }
 }
-
