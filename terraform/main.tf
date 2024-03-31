@@ -29,6 +29,10 @@ resource "random_string" "sg_suffix" {
   numeric = false
 }
 
+resource "aws_eip" "cicd_eip" {
+  vpc = true
+}
+
 resource "aws_security_group" "web_sg" {
   name        = "democicd-server-sg-${random_string.sg_suffix.result}"
   description = "Allow web and SSH traffic"
@@ -144,4 +148,10 @@ EOF
  #lifecycle {
     #create_before_destroy = true
   #}
+}
+
+# Associate the Elastic IP with the EC2 Instance for testing purpose, we will release it once the demo is complete..
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.web_instance.id
+  allocation_id = aws_eip.cicd_eip.id
 }
