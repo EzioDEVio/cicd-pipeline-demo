@@ -1,11 +1,11 @@
 name: 'Deploy demo-app using Terraform to AWS'
 
-#on:
-  #push:
-   # branches:
-      #- main
+on:
+  push:
+    branches:
+      - main
 
-#jobs:
+jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
@@ -30,10 +30,28 @@ name: 'Deploy demo-app using Terraform to AWS'
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           echo "::set-output name=image_tag::${IMAGE_TAG}"
 
-      - name: Build and push Docker image with timestamp tag
+      - name: Build Docker image with timestamp tag
         run: |
           docker build . -t ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
           docker push ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}
+
+      - name: Scan the Docker image with Trivy
+        uses: aquasecurity/trivy-action@v0.0.14
+        with:
+          image-ref: 'ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ env.IMAGE_TAG }}'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: trivy-scan-results
+          path: trivy-report.txt
 
   terraform:
     name: 'Terraform'
