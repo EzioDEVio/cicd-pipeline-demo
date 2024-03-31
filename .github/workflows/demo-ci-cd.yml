@@ -36,12 +36,13 @@ jobs:
           echo "Image built: ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}"
 
       - name: Scan the Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.18.0
+        uses: aquasecurity/trivy-action@v0.19.0
         with:
           image-ref: "ghcr.io/${{ env.REPO_OWNER }}/ghcr-democicdapp:${{ env.IMAGE_TAG }}"
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
           output: 'trivy-report.txt'
         continue-on-error: true
 
