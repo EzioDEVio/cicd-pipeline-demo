@@ -114,25 +114,22 @@ resource "aws_instance" "web_instance" {
 
   user_data = <<-EOF
 #!/bin/bash
-# Update the installed packages and package cache on Amazon Linux 2023
-sudo dnf update -y
-
-# Install Docker
-sudo dnf install docker -y
+# Install Docker and pull/run the image
+sudo dnf install -y docker
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
 
-# Add 'ec2-user' to the 'docker' group
-sudo usermod -a -G docker ec2-user
-
-# Pull and run the Docker image, ensuring the repository name is in lowercase
+# Lowercase the repository owner and pull the image
 REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
-echo "Pulling new image with tag: ${var.docker_image_tag}"
-sudo docker pull ghcr.io/$${REPO_NAME}/cicd-demoapp:${var.docker_image_tag}
-sudo docker stop web_container || true
-sudo docker rm web_container || true
-sudo docker run -d --name web_container -p 80:80 ghcr.io/$${REPO_NAME}/cicd-demoapp:${var.docker_image_tag}
+IMAGE_TAG=${var.docker_image_tag}
+echo "Pulling image: ghcr.io/${REPO_NAME}/cicd-demoapp:${IMAGE_TAG}"
+sudo docker pull ghcr.io/${REPO_NAME}/cicd-demoapp:${IMAGE_TAG} || exit 1
+
+echo "Running container..."
+sudo docker run -d --name web_container -p 80:80 ghcr.io/${REPO_NAME}/cicd-demoapp:${IMAGE_TAG} || exit 1
 EOF
+
 
 
 
