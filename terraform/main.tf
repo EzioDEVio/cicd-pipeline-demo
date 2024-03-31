@@ -113,25 +113,28 @@ resource "aws_instance" "web_instance" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_instance_profile.name
 
   user_data = <<-EOF
-              #!/bin/bash
-              # Update the installed packages and package cache on Amazon Linux 2023 since it is different than ec2 ami 2
-              sudo dnf update -y
+#!/bin/bash
+# Update the installed packages and package cache on Amazon Linux
+sudo dnf update -y
 
-              # Install Docker
-              sudo dnf install docker -y
-              sudo systemctl start docker
-              sudo systemctl enable docker
+# Install Docker
+sudo dnf install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
 
-              # Add 'ec2-user' to the 'docker' group
-              sudo usermod -a -G docker ec2-user
+# Add 'ec2-user' to the 'docker' group
+sudo usermod -a -G docker ec2-user
 
-              # Pull and run the Docker image, ensuring the repository name is in lowercase
-              REPO_NAME=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
-              echo "Pulling new image with tag: ${var.docker_image_tag}"
-              sudo docker pull ${var.docker_image_tag}
-              sudo docker stop web_container || true
-              sudo docker rm web_container || true
-              sudo docker run -d --name web_container -p 80:80 ${var.docker_image_tag}
+# Pull and run the Docker image using dynamic values for REPO_OWNER and IMAGE_TAG
+REPO_OWNER=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
+IMAGE_TAG="${var.docker_image_tag}"
+FULL_IMAGE_NAME="ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}"
+
+echo "Pulling image: ${FULL_IMAGE_NAME}"
+sudo docker pull ${FULL_IMAGE_NAME}
+sudo docker stop web_container || true
+sudo docker rm web_container || true
+sudo docker run -d --name web_container -p 80:80 ${FULL_IMAGE_NAME}
 EOF
 
   tags = {
