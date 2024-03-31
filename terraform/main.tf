@@ -128,13 +128,13 @@ sudo usermod -a -G docker ec2-user
 # Pull and run the Docker image using dynamic values for REPO_OWNER and IMAGE_TAG
 REPO_OWNER=$(echo "${var.repo_owner}" | awk '{print tolower($0)}')
 IMAGE_TAG="${var.docker_image_tag}"
-FULL_IMAGE_NAME="ghcr.io/${REPO_OWNER}/ghcr-democicdapp:${IMAGE_TAG}"
+FULL_IMAGE_NAME="ghcr.io/$REPO_OWNER/ghcr-democicdapp:$IMAGE_TAG"
 
-echo "Pulling image: ${FULL_IMAGE_NAME}"
-sudo docker pull ${FULL_IMAGE_NAME}
+echo "Pulling image: $FULL_IMAGE_NAME"
+sudo docker pull $FULL_IMAGE_NAME
 sudo docker stop web_container || true
 sudo docker rm web_container || true
-sudo docker run -d --name web_container -p 80:80 ${FULL_IMAGE_NAME}
+sudo docker run -d --name web_container -p 80:80 $FULL_IMAGE_NAME
 EOF
 
   tags = {
