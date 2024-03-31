@@ -1,4 +1,4 @@
-name: 'Deploy demo-app using Terraform to AWS'
+name: 'Build, Push, and Deploy cicddemo-app using Terraform to AWS'
 
 on:
   push:
