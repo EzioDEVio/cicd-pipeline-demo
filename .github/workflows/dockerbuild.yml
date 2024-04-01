@@ -1,9 +1,9 @@
 name: Build and Push to Docker Hub
 
-#on:
- # push:
+on:
+ push:
     branches:
-      #- main  # Set to the branch name you want to trigger the build.
+      - main  # Set to the branch name you want to trigger the build.
 
 # Define the concurrency group
 concurrency: 
