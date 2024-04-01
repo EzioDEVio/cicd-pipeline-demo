@@ -1,9 +1,9 @@
-name: Build and Push Docker image
+name: Build and Push Docker image to Github Container Registry
 
-#on:
- # push:
+on:
+ push:
     branches:
-     # - main
+     - main
 
 # Define the concurrency group
 concurrency: 
