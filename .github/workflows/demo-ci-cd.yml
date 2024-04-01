@@ -1,9 +1,9 @@
 name: 'Build, package, and Trivy scanner Deploy demo-app using Terraform to AWS'
 
-#on:
- #push:
-    #branches:
-      #- main
+on:
+ push:
+    branches:
+      - main
 
 jobs:
   build-and-push:
@@ -49,6 +49,24 @@ jobs:
         with:
           name: Trivy-scan-report
           path: trivy-report.txt
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov scan
+        run: checkov -d . --quiet --output-file checkov-report.txt
+        continue-on-error: true  # This ensures the step doesn't cause the workflow to fail
+
+      - name: Upload Checkov scan report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Checkov-scan-report
+          path: checkov-report.txt
 
   terraform:
     name: 'Terraform'
