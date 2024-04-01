@@ -145,9 +145,9 @@ EOF
     Name = "CICD-Web-Instance"
   }
 
- #lifecycle {
-    #create_before_destroy = true
-  #}
+ lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Associate the Elastic IP with the EC2 Instance for testing purpose, we will release it once the demo is complete..
