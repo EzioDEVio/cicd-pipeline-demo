@@ -1,9 +1,9 @@
 name: 'Build, package, and Trivy scanner Deploy demo-app using Terraform to AWS'
 
-on:
-  push:
-   branches:
-     - main
+#on:
+  #push:
+   #branches:
+     #- main
 
 jobs:
   build-and-push:
