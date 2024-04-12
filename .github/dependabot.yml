@@ -3,10 +3,16 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
+# Configuration for Dependabot
 version: 2
 updates:
-  - package-ecosystem: "npm" # my app has npm packages
-    directory: "/" # Location of package manifests
+  # Enable updates for npm (Node.js)
+  - package-ecosystem: "npm"
+    directory: "/"  # Since your package.json is in the root directory
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # Check for updates once a week
+    open-pull-requests-limit: 5  # Limits the number of open pull requests to 5
+    commit-message:
+      prefix: "chore"  # Prefix to denote maintenance changes in commit messages
+      include: "scope"  # Include the scope of the dependency in the commit message
 
