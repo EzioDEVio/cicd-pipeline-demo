@@ -1,6 +1,6 @@
 
 
-aws configure # Configure AWS CLI
+aws configure # Configure AWS CLI.....
 
 
 AWS_ACCESS_KEY_ID # Access Key
