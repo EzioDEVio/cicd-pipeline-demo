@@ -24,7 +24,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16' # Replace with the Node.js version you use
+        node-version: '16' # Ensure this matches the Node.js version your project requires
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -36,10 +36,13 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
+      with:
+        # This is the correct way to specify the output file for the SARIF if needed
+        output: results/javascript.sarif
 
     - name: Upload SARIF file
       uses: actions/upload-artifact@v2
+      if: always() # Ensure upload happens even if previous steps fail
       with:
-        name: codeql-failed-run
-        path: path/to/codeql-failed-run.sarif
-
+        name: codeql-artifacts
+        path: results/javascript.sarif
