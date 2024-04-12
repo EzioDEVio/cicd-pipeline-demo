@@ -2,9 +2,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
   schedule:
     - cron: '23 7 * * 0'
 
@@ -12,32 +12,27 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
-    timeout-minutes: 60 # Adjust the timeout as needed
-    permissions:
-      security-events: write
-      contents: read
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['javascript'] # Set to 'javascript' for Node.js
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
-    # Initializes the CodeQL tools for scanning.
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16' # Replace with the Node.js version you use
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: ${{ matrix.language }}
-        # Ensure no other optional parameters are set here
+        languages: 'javascript'
 
-    # Autobuild is typically sufficient for JavaScript/TypeScript projects.
-    # Since we're keeping it simple, no manual build steps are added.
     - name: Install dependencies
       run: npm install
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
-      # Ensure no other optional parameters are set here
