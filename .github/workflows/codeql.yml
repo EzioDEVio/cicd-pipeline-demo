@@ -1,0 +1,43 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # Run once a week
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest  # Specify the runner. Ubuntu is generally used for Node.js projects
+
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript']  # Only JavaScript is specified here
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Specify the Node.js version you are using
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Install dependencies
+      run: npm install  # Installs Node.js project dependencies
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
