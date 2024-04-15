@@ -10,8 +10,8 @@ AWS_SESSION_TOKEN # Session Token If you are using temporary credentials (such a
 
 ###Unix-like system###
 
-export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE 
-export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+export AWS_ACCESS_KEY_ID=AKIAxxxxxxxxxxxxxxxxx 
+export AWS_SECRET_ACCESS_KEY=wJalrXUxxxxxxxxxxxxxxxxxxxxxxx
 export AWS_DEFAULT_REGION=us-west-2
 
 ####on Windows (using Command Prompt)####
