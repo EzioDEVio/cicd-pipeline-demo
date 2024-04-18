@@ -1,0 +1,40 @@
+name: Infrastructure Security Scan with Terrascan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Terrascan
+        run: |
+          curl -L "$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | grep -o -E 'https://[^\"]*linux_amd64.tar.gz')" | tar -xz
+          sudo mv terrascan /usr/local/bin
+
+      - name: Scan Terraform code and save results
+        run: |
+          terrascan scan -t aws -d ./terraform -o json > terrascan-results.json
+
+      - name: Print security violations if found
+        run: |
+          if [ -s terrascan-results.json ] && grep -q '"violations": \[.*\]' terrascan-results.json; then
+            echo "Security violations found:"
+            grep '"violations": \[.*\]' terrascan-results.json
+          else
+            echo "No security violations found."
+          fi
+
+      - name: Upload Terrascan report
+        uses: actions/upload-artifact@v2
+        with:
+          name: Terrascan-report
+          path: terrascan-results.json
