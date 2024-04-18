@@ -1,3 +1,4 @@
+name: Security Scanning with Terrascan
 on: [push]
 
 jobs:
