@@ -1,4 +1,4 @@
-name: Infrastructure Security Scan with Terrascan
+name: Infrastructure Security Scan with Terrascan.
 
 on:
   push:
