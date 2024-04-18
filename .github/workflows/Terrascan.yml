@@ -1,4 +1,4 @@
-name: Infrastructure Security Scan with Terrascan.
+name: Infrastructure Security Scan with Terrascan
 
 on:
   push:
@@ -15,10 +15,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install jq and Terrascan
+      - name: Install Terrascan
         run: |
+          # Install jq if not available
           sudo apt-get update && sudo apt-get install -y jq
-          TERRASCAN_URL=$(curl -s https://api.github.com/repos/accurics/terrascan/releases/latest | jq -r '.assets[] | select(.name | endswith("linux_amd64.tar.gz")).browser_download_url')
+          # Fetch the latest Terrascan release URL for linux_amd64.tar.gz
+          TERRASCAN_URL=$(curl -L -s https://api.github.com/repos/accurics/terrascan/releases/latest | jq -r '.assets[] | select(.name | endswith("linux_amd64.tar.gz")).browser_download_url')
+          # Handle the case where the URL might be empty or incorrect
+          if [ -z "$TERRASCAN_URL" ] || [ "$TERRASCAN_URL" = "null" ]; then
+            echo "Terrascan download URL not found."
+            exit 1
+          fi
+          # Download and extract Terrascan
           curl -L "$TERRASCAN_URL" | tar -xz
           sudo mv terrascan /usr/local/bin
 
