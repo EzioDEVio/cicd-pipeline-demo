@@ -1,6 +1,6 @@
 name: Build and Push Docker image to Github Container Registry
 
-on:
+#on:
  push:
     branches:
      - main
