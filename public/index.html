@@ -17,10 +17,16 @@
         .container {
             max-width: 800px;
             margin: auto;
-            background: #fff;
+            background: #FFA500;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: block;
+            margin: 10px auto; /* Center the image */
+            width: 100px; /* Set a fixed width */
         }
 
         h1 {
@@ -49,7 +55,8 @@
 </head>
 <body>
     <div class="container">
-        <h1> Welcome to the DCSA CI/CD Demo</h1>
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo" class="logo">
+        <h1>Welcome to the DCSA CI/CD Demo using GitHub</h1>
         <p>This page demonstrates a simple CI/CD pipeline that includes HTML content. The purpose is to show how changes in source control can automatically trigger workflows that test, build, and deploy a web application.</p>
         <p>CI/CD pipelines enhance the software development process by providing immediate feedback on code changes, streamlining testing and deployment, and fostering a culture of continuous improvement.</p>
         
