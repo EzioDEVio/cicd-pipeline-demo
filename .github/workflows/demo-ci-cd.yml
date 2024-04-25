@@ -1,4 +1,4 @@
-name: 'Build, package, and Trivy scanner, Checkov, Deploy demo-app using Terraform to AWS.'
+name: 'Build, package, and Trivy scanner, Checkov, Deploy demo-app using Terraform to AWS..'
 
 on:
  push:
