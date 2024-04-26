@@ -7,7 +7,7 @@
 
 # Project Documentation
 
-## Overview
+## Overview.
 
 This project demonstrates a comprehensive CI/CD pipeline incorporating DevSecOps best practices using GitHub Actions. The application, a simple web server, is containerized using Docker, scanned for vulnerabilities with Trivy, and analyzed with SonarCloud to ensure code quality and security.
 
