@@ -3,7 +3,7 @@
 [![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/summary/new_code?id=EzioDEVio_cicd-pipeline-demo)   
 [![Security Scanning with Terrascan](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/Terrascan.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/Terrascan.yml)
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=EzioDEVio_cicd-pipeline-demo)](https://sonarcloud.io/summary/new_code?id=EzioDEVio_cicd-pipeline-demo)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=EzioDEVio_cicd-pipeline-demo)](https://sonarcloud.io/summary/new_code?id=EzioDEVio_cicd-pipeline-demo) [![OWASP ZAP Integration with GitHub Actions](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/owasp.yml/badge.svg)](https://github.com/EzioDEVio/cicd-pipeline-demo/actions/workflows/owasp.yml)
 
 # Project Documentation
 
