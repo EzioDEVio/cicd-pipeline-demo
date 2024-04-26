@@ -24,6 +24,7 @@ jobs:
           target: 'http://${{ secrets.EC2_PUBLIC_IP }}'
           docker_name: 'owasp/zap2docker-stable:latest'
           # Ensure EC2_PUBLIC_IP is set in your GitHub secrets with the value of your EC2 instance's public IP.
+          # Add additional configuration parameters as needed.
 
       - name: Upload ZAP Scan Report
         uses: actions/upload-artifact@v2
