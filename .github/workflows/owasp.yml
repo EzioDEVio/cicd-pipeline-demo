@@ -3,7 +3,7 @@ name: OWASP ZAP Security Scan
 on:
   workflow_dispatch: # Allows manual trigger
   schedule:
-    - cron: '0 12 * * *' # Schedule to run daily at noon
+    - cron: '0 12 * * *' # Scheduled to run daily at noon
 
 jobs:
   owasp-zap-scan:
@@ -14,12 +14,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Pull OWASP ZAP Docker Image
+        run: docker pull owasp/zap2docker-stable:latest
+
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.4.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: 'http://${{ secrets.EC2_PUBLIC_IP }}'
-          # EC2_PUBLIC_IP should be set in your GitHub secrets with the value of your EC2 instance's public IP.
+          docker_name: 'owasp/zap2docker-stable:latest'
+          # Ensure EC2_PUBLIC_IP is set in your GitHub secrets with the value of your EC2 instance's public IP.
 
       - name: Upload ZAP Scan Report
         uses: actions/upload-artifact@v2
